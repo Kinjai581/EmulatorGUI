@@ -40,9 +40,9 @@ namespace Emulator_Graphical_Interface
             CPU cpu = new CPU();
             byte[] programMemory = new byte[]
             {
-            //Make an instruction to store a value from a Register into memory. (Both Register A & B)
-            0x01, 0x42, // Load 0x42 into RegisterA
-            0x02, 0x84, // Load 0x84 into RegisterB
+            0x01, 0x42, // Load 66 into RegisterA
+            0x02, 0x84, // Load 132 into RegisterB
+            0x19, 0x02, 0x01, // Store Reg B in memory address
             0x03, 0x02, // Add 0x02 to RegisterA
             0x04, 0x01, // Add 0x01 to RegisterB
             0x05, 0x01, // Subtract 0x01 from RegisterA
@@ -66,6 +66,10 @@ namespace Emulator_Graphical_Interface
             0x16, 0x32, // Stack Pointer push instruction (start at memory address 100)
             0x16, 0x26,
             0x17, 0x23, // Stack pointer pop instrucion
+            0x01, 3, // Load Register A with Red
+            0x18, 0x28, 0x11, // Store address into Reg A
+            0x1a, 0xd0, 0x07,//Load index into Register A from memory address
+            0x1b, 0x02, 0x00, //Load inedec into Reg B from memory address
             //0x0F, 0x00, //If the equals flag is set in Status Register (Jump equals)
             0xFF        // Halt
             };
@@ -74,7 +78,26 @@ namespace Emulator_Graphical_Interface
             memory = new byte[8192];
             memory[0x7d0] = 1; // First pixel at top left is blue
             memory[0x7d1] = 2;
+            memory[0x7d2] = 3;
+            memory[0x7d3] = 4;
+            memory[0x7d4] = 5;
+            memory[0x7d5] = 6;
+            memory[0x7d6] = 7;
+            memory[0x7d7] = 8;
+            memory[0x1129] = 1; // eyes
+            memory[0x112c] = 1; // eyes
+            memory[0x11a7] = 2;
+            memory[0x11e8] = 2;
+            memory[0x1229] = 2;
+            memory[0x122a] = 2;
+            memory[0x122b] = 2;
+            memory[0x122c] = 2;
+            memory[0x11ed] = 2;
+            memory[0x11ae] = 2;
+            //memory[0x80f] = 3;
+            //memory[0x810] = 3;
             memory[0x35] = 0x10;
+
 
             cpu.StackPointerRegister = 0x64; //Stores memory address of 100 into the stack pointer (starts at this address)
 
@@ -122,6 +145,48 @@ namespace Emulator_Graphical_Interface
 
                     case 2:
                         using (SolidBrush brush = new SolidBrush(Color.Yellow))
+                        {
+                            g.FillRectangle(brush, x, y, PixelSize, PixelSize);
+                        }
+                        break;
+
+                    case 3:
+                        using (SolidBrush brush = new SolidBrush(Color.Red))
+                        {
+                            g.FillRectangle(brush, x, y, PixelSize, PixelSize);
+                        }
+                        break;
+
+                    case 4:
+                        using (SolidBrush brush = new SolidBrush(Color.Green))
+                        {
+                            g.FillRectangle(brush, x, y, PixelSize, PixelSize);
+                        }
+                        break;
+
+                    case 5:
+                        using (SolidBrush brush = new SolidBrush(Color.Orange))
+                        {
+                            g.FillRectangle(brush, x, y, PixelSize, PixelSize);
+                        }
+                        break;
+
+                    case 6:
+                        using (SolidBrush brush = new SolidBrush(Color.Purple))
+                        {
+                            g.FillRectangle(brush, x, y, PixelSize, PixelSize);
+                        }
+                        break;
+
+                    case 7:
+                        using (SolidBrush brush = new SolidBrush(Color.Gray))
+                        {
+                            g.FillRectangle(brush, x, y, PixelSize, PixelSize);
+                        }
+                        break;
+
+                    case 8:
+                        using (SolidBrush brush = new SolidBrush(Color.Indigo))
                         {
                             g.FillRectangle(brush, x, y, PixelSize, PixelSize);
                         }
@@ -417,6 +482,41 @@ namespace Emulator_Graphical_Interface
                     Console.WriteLine($"Memory address at {cpu.StackPointerRegister} is equal to {operand}");
                     cpu.ProgramCounter += 2;
                     break;
+
+                case 0x18: // Store register value A
+                    byte lowerByte = operand;
+                    byte higherByte = operand1;
+                    ushort address = (ushort)((higherByte << 8) | lowerByte);
+                    memory[address] = cpu.RegisterA; // store value of Reg A into memory
+                    //MessageBox.Show($"{memory[address]}");
+                    cpu.ProgramCounter += 3;
+                    break;
+
+                case 0x19: // Store register value B
+                    byte lowerByte1 = operand;
+                    byte higherByte1 = operand1;
+                    ushort address1 = (ushort)((higherByte1 << 8) | lowerByte1);
+                    memory[address1] = cpu.RegisterB; // store value of Reg A into memory
+                    //MessageBox.Show($"{memory[address1]}");
+                    cpu.ProgramCounter += 3;
+                    break;
+
+                case 0x1a:
+                    byte lowByte = operand;
+                    byte highByte = operand1;
+                    ushort address2 = (ushort)((highByte << 8) | lowByte);
+                    cpu.RegisterA = memory[address2];
+                    cpu.ProgramCounter += 3;
+                    break;
+
+                case 0x1b:
+                    byte lowByte1 = operand;
+                    byte highByte1 = operand1;
+                    ushort address3 = (ushort)((highByte1 << 8) | lowByte1);
+                    cpu.RegisterB = memory[address3];
+                    cpu.ProgramCounter += 3;
+                    break;
+
 
                 case 0xFF: // Halt instruction
                     Console.WriteLine("Halt instruction encountered. Stopping execution.");
