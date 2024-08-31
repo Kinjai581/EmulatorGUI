@@ -1,8 +1,13 @@
+using System;
 using System.Drawing.Text;
 using System.Runtime.InteropServices;
+using System.Threading;
 
 namespace Emulator_Graphical_Interface
 {
+    //TODO:
+//- Make the running program(which is the program memory code) run on a separate thread from the GUI.The GUI will run on the thread
+// Make the while loop run on a seperate thread.
     public partial class Form1 : Form
     {
         private const int PixelSize = 15;
